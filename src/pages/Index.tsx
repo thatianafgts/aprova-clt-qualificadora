@@ -77,11 +77,55 @@ const Index = () => {
   const noCount = answeredProgressQuestions.filter(q => answers[q.id] === "nao").length;
   const totalAnswered = yesCount + noCount;
 
+  const validatePhone = (phone: string) => {
+    // Formato: (11) 99999-9999 ou 11999999999
+    const phoneRegex = /^(\(\d{2}\)\s?\d{4,5}-?\d{4}|\d{10,11})$/;
+    return phoneRegex.test(phone.replace(/\s/g, ''));
+  };
+
+  const validateEmail = (email: string) => {
+    if (!email) return true; // Email é opcional
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleWhatsAppSubmit = () => {
+    // Verificar campos obrigatórios
     if (!name.trim() || !phone.trim()) {
       toast({
         title: "Campos obrigatórios",
         description: "Por favor, preencha nome e telefone.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validar formato do telefone
+    if (!validatePhone(phone)) {
+      toast({
+        title: "Telefone inválido",
+        description: "Use o formato (11) 99999-9999 ou apenas números com DDD.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validar formato do email
+    if (!validateEmail(email)) {
+      toast({
+        title: "Email inválido",
+        description: "Digite um endereço de email válido (ex: usuario@email.com).",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Verificar se todas as perguntas visíveis foram respondidas
+    const unansweredQuestions = visibleQuestions.filter(q => !answers[q.id]);
+    if (unansweredQuestions.length > 0) {
+      toast({
+        title: "Perguntas não respondidas",
+        description: "Por favor, responda todas as perguntas antes de continuar.",
         variant: "destructive"
       });
       return;
@@ -106,9 +150,9 @@ const Index = () => {
     localStorage.setItem("aprovaclt_responses", JSON.stringify(responses));
 
     // Open WhatsApp
-    const phoneNumber = "5511999999999"; // Replace with actual number
+    const savedWhatsapp = localStorage.getItem("aprovaclt_whatsapp") || "5511999999999";
     const message = `Olá! Gostaria de simular um empréstimo CLT. Meu nome é ${name}.`;
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/${savedWhatsapp}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
 
     toast({
@@ -172,13 +216,13 @@ const Index = () => {
                   className="h-12"
                 />
                 <Input
-                  placeholder="Celular (WhatsApp) *"
+                  placeholder="Celular (WhatsApp) * - Ex: (11) 99999-9999"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="h-12"
                 />
                 <Input
-                  placeholder="Email (opcional)"
+                  placeholder="Email (opcional) - Ex: usuario@email.com"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}

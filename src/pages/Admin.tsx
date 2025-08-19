@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { LogoUpload } from "@/components/LogoUpload";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Users, TrendingUp, Settings, LogOut } from "lucide-react";
+import { Plus, Edit, Trash2, Users, TrendingUp, Settings, LogOut, Home, Phone } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface Question {
   id: number;
@@ -48,6 +49,7 @@ export default function Admin() {
     condicional: undefined
   });
   const [logo, setLogo] = useState<string>("");
+  const [whatsappNumber, setWhatsappNumber] = useState<string>("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -92,6 +94,12 @@ export default function Admin() {
     const savedLogo = localStorage.getItem("aprovaclt_logo");
     if (savedLogo) {
       setLogo(savedLogo);
+    }
+
+    // Load WhatsApp number
+    const savedWhatsapp = localStorage.getItem("aprovaclt_whatsapp");
+    if (savedWhatsapp) {
+      setWhatsappNumber(savedWhatsapp);
     }
   };
 
@@ -202,9 +210,17 @@ export default function Admin() {
                 onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
               />
             </div>
-            <Button onClick={handleLogin} className="w-full">
-              Entrar
-            </Button>
+            <div className="flex gap-2">
+              <Link to="/" className="flex-1">
+                <Button variant="outline" className="w-full">
+                  <Home className="w-4 h-4 mr-2" />
+                  Voltar
+                </Button>
+              </Link>
+              <Button onClick={handleLogin} className="flex-1">
+                Entrar
+              </Button>
+            </div>
             <p className="text-xs text-muted-foreground text-center">
               Usuário: admin | Senha: admin123
             </p>
@@ -228,10 +244,18 @@ export default function Admin() {
             <h1 className="text-3xl font-bold text-primary">Painel Administrativo</h1>
             <p className="text-muted-foreground">Gerencie perguntas e analise respostas</p>
           </div>
-          <Button onClick={handleLogout} variant="outline">
-            <LogOut className="w-4 h-4 mr-2" />
-            Sair
-          </Button>
+          <div className="flex gap-2">
+            <Link to="/">
+              <Button variant="outline">
+                <Home className="w-4 h-4 mr-2" />
+                Voltar ao Início
+              </Button>
+            </Link>
+            <Button onClick={handleLogout} variant="outline">
+              <LogOut className="w-4 h-4 mr-2" />
+              Sair
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -289,10 +313,43 @@ export default function Admin() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div>
-                <Label>Logo da Empresa</Label>
-                <div className="mt-2">
-                  <LogoUpload currentLogo={logo} onLogoChange={setLogo} />
+              <div className="space-y-4">
+                <div>
+                  <Label>Logo da Empresa</Label>
+                  <div className="mt-2">
+                    <LogoUpload currentLogo={logo} onLogoChange={setLogo} />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="whatsapp">Número do WhatsApp</Label>
+                  <div className="flex gap-2 mt-2">
+                    <div className="flex items-center">
+                      <Phone className="w-4 h-4 text-muted-foreground mr-2" />
+                    </div>
+                    <Input
+                      id="whatsapp"
+                      value={whatsappNumber}
+                      onChange={(e) => setWhatsappNumber(e.target.value)}
+                      placeholder="5511999999999"
+                      className="flex-1"
+                    />
+                    <Button
+                      onClick={() => {
+                        localStorage.setItem("aprovaclt_whatsapp", whatsappNumber);
+                        toast({
+                          title: "WhatsApp atualizado!",
+                          description: "Número salvo com sucesso.",
+                        });
+                      }}
+                      size="sm"
+                    >
+                      Salvar
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Formato: código do país + DDD + número (ex: 5511999999999)
+                  </p>
                 </div>
               </div>
             </CardContent>
