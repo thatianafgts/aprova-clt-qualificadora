@@ -77,10 +77,30 @@ const Index = () => {
   const noCount = answeredProgressQuestions.filter(q => answers[q.id] === "nao").length;
   const totalAnswered = yesCount + noCount;
 
+  const formatPhone = (value: string) => {
+    // Remove tudo exceto números
+    const numbers = value.replace(/\D/g, '');
+    
+    // Aplica a formatação (XX) XXXXX-XXXX
+    if (numbers.length <= 2) {
+      return `(${numbers}`;
+    } else if (numbers.length <= 7) {
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+    } else if (numbers.length <= 11) {
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7)}`;
+    }
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`;
+  };
+
   const validatePhone = (phone: string) => {
-    // Formato: (11) 99999-9999 ou 11999999999
-    const phoneRegex = /^(\(\d{2}\)\s?\d{4,5}-?\d{4}|\d{10,11})$/;
-    return phoneRegex.test(phone.replace(/\s/g, ''));
+    // Remove formatação e verifica se tem 10 ou 11 dígitos
+    const numbers = phone.replace(/\D/g, '');
+    return numbers.length >= 10 && numbers.length <= 11;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhone(e.target.value);
+    setPhone(formatted);
   };
 
   const validateEmail = (email: string) => {
@@ -151,7 +171,7 @@ const Index = () => {
 
     // Open WhatsApp
     const savedWhatsapp = localStorage.getItem("aprovaclt_whatsapp") || "5511999999999";
-    const message = `Olá! Gostaria de simular um empréstimo CLT. Meu nome é ${name}.`;
+    const message = "Oi, quero fazer empréstimo CLT com especialista";
     const whatsappUrl = `https://wa.me/${savedWhatsapp}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
 
@@ -162,26 +182,28 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-gold-light/30 to-background">
       {/* Header */}
-      <header className="bg-card border-b border-gold/20 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="bg-card/80 backdrop-blur-lg border-b border-gold/30 shadow-elegant">
+        <div className="max-w-4xl mx-auto px-4 py-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             {logo ? (
-              <img src={logo} alt="Logo" className="h-12 w-12 object-contain rounded-lg" />
+              <img src={logo} alt="Logo" className="h-14 w-14 object-contain rounded-xl shadow-lg" />
             ) : (
-              <div className="h-12 w-12 bg-primary rounded-lg flex items-center justify-center">
-                <Building className="h-6 w-6 text-primary-foreground" />
+              <div className="h-14 w-14 bg-gradient-to-br from-primary to-primary-hover rounded-xl flex items-center justify-center shadow-lg animate-pulse-gold">
+                <Building className="h-8 w-8 text-primary-foreground" />
               </div>
             )}
             <div>
-              <h1 className="text-2xl font-bold text-primary">AprovaCLT</h1>
-              <p className="text-sm text-muted-foreground">Qualificação de Empréstimo</p>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-gold to-primary bg-clip-text text-transparent">
+                AprovaCLT
+              </h1>
+              <p className="text-sm text-muted-foreground font-medium">💰 Qualificação de Empréstimo Profissional</p>
             </div>
           </div>
           
           <Link to="/admin">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="shadow-lg hover:shadow-xl transition-all duration-300">
               <Settings className="w-4 h-4 mr-2" />
               Admin
             </Button>
@@ -191,12 +213,12 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-primary mb-4">
-            Descubra suas Chances de Conseguir um Empréstimo CLT
+        <div className="text-center mb-10">
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-primary via-gold to-primary bg-clip-text text-transparent mb-6 animate-slide-up">
+            🎯 Descubra suas Chances de Conseguir um Empréstimo CLT
           </h2>
-          <p className="text-lg text-muted-foreground">
-            Responda algumas perguntas e veja sua probabilidade de aprovação em tempo real
+          <p className="text-xl text-muted-foreground font-medium leading-relaxed max-w-2xl mx-auto">
+            ✨ Responda algumas perguntas e veja sua probabilidade de aprovação em tempo real
           </p>
         </div>
 
@@ -204,30 +226,43 @@ const Index = () => {
           {/* Form Section */}
           <div className="lg:col-span-2 space-y-6">
             {/* Personal Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Seus Dados</CardTitle>
+            <Card className="shadow-elegant border border-gold/20 bg-card/50 backdrop-blur-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-bold text-primary flex items-center gap-2">
+                  👤 Seus Dados Pessoais
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Input
-                  placeholder="Nome completo *"
+                  placeholder="📝 Nome completo *"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="h-12"
+                  className="h-14 text-lg border-gold/30 focus:border-gold shadow-sm"
                 />
                 <Input
-                  placeholder="Celular (WhatsApp) * - Ex: (11) 99999-9999"
+                  placeholder="📱 Celular (WhatsApp) * - Ex: (11) 99999-9999"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="h-12"
+                  onChange={handlePhoneChange}
+                  className="h-14 text-lg border-gold/30 focus:border-gold shadow-sm"
+                  maxLength={15}
                 />
+                {phone && !validatePhone(phone) && (
+                  <p className="text-sm text-destructive font-medium">
+                    ⚠️ Digite seu telefone com DDD: (11) 99999-9999
+                  </p>
+                )}
                 <Input
-                  placeholder="Email (opcional) - Ex: usuario@email.com"
+                  placeholder="📧 Email (opcional) - Ex: usuario@email.com"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-12"
+                  className="h-14 text-lg border-gold/30 focus:border-gold shadow-sm"
                 />
+                {email && !validateEmail(email) && (
+                  <p className="text-sm text-destructive font-medium">
+                    ⚠️ Digite um email válido: usuario@email.com
+                  </p>
+                )}
               </CardContent>
             </Card>
 
@@ -248,11 +283,11 @@ const Index = () => {
             {/* WhatsApp Button */}
             <Button
               onClick={handleWhatsAppSubmit}
-              className="w-full h-14 text-lg font-semibold bg-success hover:bg-success/90 animate-pulse-gold"
+              className="w-full h-16 text-xl font-bold bg-gradient-to-r from-success to-success/90 hover:from-success/90 hover:to-success shadow-xl hover:shadow-2xl transition-all duration-300 animate-pulse-gold"
               disabled={!name.trim() || !phone.trim()}
             >
-              <MessageCircle className="w-5 h-5 mr-2" />
-              Simular no WhatsApp
+              <MessageCircle className="w-6 h-6 mr-3" />
+              🚀 Seguir com Especialista
             </Button>
           </div>
 

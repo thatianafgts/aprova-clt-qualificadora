@@ -50,6 +50,7 @@ export default function Admin() {
   });
   const [logo, setLogo] = useState<string>("");
   const [whatsappNumber, setWhatsappNumber] = useState<string>("");
+  const [newPassword, setNewPassword] = useState<string>("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -104,8 +105,10 @@ export default function Admin() {
   };
 
   const handleLogin = () => {
-    // Simple authentication (in production, use proper authentication)
-    if (username === "admin" && password === "admin123") {
+    // Get current password from localStorage or use default
+    const currentPassword = localStorage.getItem("aprovaclt_admin_password") || "admin123";
+    
+    if (username === "admin" && password === currentPassword) {
       localStorage.setItem("aprovaclt_admin_auth", "true");
       setIsAuthenticated(true);
       loadData();
@@ -222,7 +225,7 @@ export default function Admin() {
               </Button>
             </div>
             <p className="text-xs text-muted-foreground text-center">
-              Usuário: admin | Senha: admin123
+              Usuário: admin | Senha: {localStorage.getItem("aprovaclt_admin_password") || "admin123"}
             </p>
           </CardContent>
         </Card>
@@ -349,6 +352,45 @@ export default function Admin() {
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
                     Formato: código do país + DDD + número (ex: 5511999999999)
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="newPassword">Nova Senha do Admin</Label>
+                  <div className="flex gap-2 mt-2">
+                    <Input
+                      id="newPassword"
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Digite a nova senha"
+                      className="flex-1"
+                    />
+                    <Button
+                      onClick={() => {
+                        if (newPassword.trim()) {
+                          localStorage.setItem("aprovaclt_admin_password", newPassword);
+                          setNewPassword("");
+                          toast({
+                            title: "Senha atualizada!",
+                            description: "Nova senha salva com sucesso.",
+                          });
+                        } else {
+                          toast({
+                            title: "Erro",
+                            description: "Digite uma senha válida.",
+                            variant: "destructive"
+                          });
+                        }
+                      }}
+                      size="sm"
+                      disabled={!newPassword.trim()}
+                    >
+                      Alterar
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    A senha atual será alterada imediatamente
                   </p>
                 </div>
               </div>
