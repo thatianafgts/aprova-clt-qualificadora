@@ -2,66 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
-/* AprovaCLT Design System - Professional & Attractive loan qualification app
+/* AprovaCLT Design System - Classic Professional Theme
 All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    /* Core Backgrounds */
-    --background: 210 20% 98%; /* Ultra light background */
-    --foreground: 220 100% 9%; /* Rich dark blue text */
+    /* Core Backgrounds - Classic White & Dark Blue */
+    --background: 0 0% 100%; /* Pure white */
+    --foreground: 213 100% 15%; /* Deep navy blue */
 
     /* Card System */
     --card: 0 0% 100%; /* Pure white cards */
-    --card-foreground: 220 100% 9%;
+    --card-foreground: 213 100% 15%;
 
     /* Interactive Elements */
     --popover: 0 0% 100%;
-    --popover-foreground: 220 100% 9%;
+    --popover-foreground: 213 100% 15%;
 
-    /* Brand Colors - Enhanced */
-    --primary: 220 100% 15%; /* Rich navy blue */
+    /* Brand Colors - Classic Navy & Gold */
+    --primary: 213 100% 15%; /* Deep navy blue */
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 220 100% 20%;
+    --primary-hover: 213 100% 20%;
     
-    --secondary: 210 25% 95%; /* Soft light gray */
-    --secondary-foreground: 220 100% 15%;
+    --secondary: 210 20% 96%; /* Very light gray */
+    --secondary-foreground: 213 100% 15%;
 
-    /* Gold Accent System - Enhanced */
-    --gold: 43 96% 56%; /* Vibrant gold */
-    --gold-foreground: 220 100% 15%;
-    --gold-muted: 43 70% 88%; /* Softer gold */
-    --gold-light: 43 100% 94%; /* Very light gold */
+    /* Gold Accent System - Rich Gold */
+    --gold: 45 100% 45%; /* Rich gold */
+    --gold-foreground: 213 100% 15%;
+    --gold-muted: 45 40% 85%; /* Softer gold */
+    --gold-light: 45 60% 95%; /* Very light gold */
 
-    /* Status Colors - Enhanced */
-    --success: 140 100% 27%; /* Rich emerald green */
+    /* Status Colors */
+    --success: 140 100% 27%; /* Rich green */
     --success-foreground: 0 0% 100%;
-    --success-light: 140 60% 92%;
+    --success-light: 140 40% 90%;
     
-    --warning: 35 100% 50%; /* Vibrant orange */
+    --warning: 35 100% 50%; /* Orange */
     --warning-foreground: 0 0% 100%;
-    --warning-light: 35 60% 92%;
+    --warning-light: 35 40% 90%;
     
-    --destructive: 0 100% 45%; /* Strong red */
+    --destructive: 0 84% 50%; /* Red */
     --destructive-foreground: 0 0% 100%;
-    --destructive-light: 0 60% 92%;
+    --destructive-light: 0 40% 90%;
 
-    /* Form Elements - Enhanced */
-    --muted: 210 25% 94%;
-    --muted-foreground: 220 20% 50%;
-    --accent: 43 96% 56%; /* Vibrant gold accent */
-    --accent-foreground: 220 100% 15%;
-    --border: 210 25% 90%;
-    --input: 210 25% 97%;
-    --ring: 43 96% 56%; /* Gold focus ring */
+    /* Form Elements */
+    --muted: 210 20% 96%;
+    --muted-foreground: 213 50% 40%;
+    --accent: 45 100% 45%; /* Rich gold accent */
+    --accent-foreground: 213 100% 15%;
+    --border: 210 20% 88%;
+    --input: 0 0% 100%;
+    --ring: 45 100% 45%; /* Gold focus ring */
 
-    /* Enhanced Design Tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-hover)));
-    --gradient-gold: linear-gradient(135deg, hsl(var(--gold)), hsl(43 100% 65%));
-    --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(140 100% 35%));
-    --shadow-elegant: 0 10px 40px -10px hsl(var(--primary) / 0.15);
-    --shadow-gold: 0 8px 32px -8px hsl(var(--gold) / 0.25);
+    /* Design Tokens - Classic */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(213 100% 20%));
+    --gradient-gold: linear-gradient(135deg, hsl(var(--gold)), hsl(45 100% 55%));
+    --gradient-classic: linear-gradient(135deg, hsl(0 0% 100%), hsl(210 20% 98%));
+    --shadow-elegant: 0 4px 20px -4px hsl(var(--primary) / 0.15);
+    --shadow-gold: 0 4px 20px -4px hsl(var(--gold) / 0.20);
+
+    /* Customizable colors for Index page */
+    --custom-bg: var(--background);
+    --custom-title: var(--primary);
+    --custom-text: var(--muted-foreground);
+    --custom-field: var(--input);
+    --custom-btn-yes: var(--success);
+    --custom-btn-no: var(--destructive);
 
     --radius: 0.875rem;
 

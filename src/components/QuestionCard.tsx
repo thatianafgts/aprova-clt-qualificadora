@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { CheckCircle, XCircle, Calendar } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface Question {
   id: number;
@@ -33,18 +34,45 @@ export function QuestionCard({
   isVisible,
   questionIndex
 }: QuestionCardProps) {
+  const [customColors, setCustomColors] = useState({
+    bg: "#ffffff",
+    title: "#1e40af",
+    text: "#64748b",
+    field: "#ffffff",
+    btnYes: "#059669",
+    btnNo: "#dc2626"
+  });
+
+  useEffect(() => {
+    // Load custom colors from localStorage
+    setCustomColors({
+      bg: localStorage.getItem("aprovaclt_custom_bg") || "#ffffff",
+      title: localStorage.getItem("aprovaclt_custom_title") || "#1e40af",
+      text: localStorage.getItem("aprovaclt_custom_text") || "#64748b",
+      field: localStorage.getItem("aprovaclt_custom_field") || "#ffffff",
+      btnYes: localStorage.getItem("aprovaclt_custom_btn_yes") || "#059669",
+      btnNo: localStorage.getItem("aprovaclt_custom_btn_no") || "#dc2626"
+    });
+  }, []);
+
   if (!isVisible) return null;
 
   return (
-    <Card className="mb-6 animate-slide-up shadow-elegant border border-gold/30 bg-card/50 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+    <Card className="mb-6 animate-slide-up shadow-elegant border-2 bg-card/50 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
       <CardContent className="p-6">
         <div className="flex items-start gap-4">
-          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-gold to-gold/80 flex items-center justify-center text-gold-foreground font-bold text-lg shadow-lg">
+          <div 
+            className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-lg text-white"
+            style={{ backgroundColor: customColors.title }}
+          >
             {questionIndex + 1}
           </div>
           
           <div className="flex-1 space-y-5">
-            <p className="text-foreground font-semibold text-lg leading-relaxed">
+            <p 
+              className="font-semibold text-lg leading-relaxed"
+              style={{ color: customColors.title }}
+            >
               {question.texto}
             </p>
 
@@ -55,9 +83,15 @@ export function QuestionCard({
                   variant={answer === "sim" ? "default" : "outline"}
                   className={`flex-1 h-14 font-bold text-lg transition-all duration-300 ${
                     answer === "sim" 
-                      ? "bg-gradient-to-r from-success to-success/90 text-success-foreground shadow-xl hover:shadow-2xl transform hover:scale-105" 
-                      : "border-2 border-success/50 text-success hover:bg-success/10 hover:border-success"
+                      ? "text-white shadow-xl hover:shadow-2xl transform hover:scale-105" 
+                      : "hover:scale-105"
                   }`}
+                  style={{
+                    backgroundColor: answer === "sim" ? customColors.btnYes : 'transparent',
+                    borderColor: customColors.btnYes,
+                    color: answer === "sim" ? 'white' : customColors.btnYes,
+                    borderWidth: '2px'
+                  }}
                 >
                   <CheckCircle className="w-5 h-5 mr-2" />
                   ✅ Sim
@@ -67,9 +101,15 @@ export function QuestionCard({
                   variant={answer === "nao" ? "default" : "outline"}
                   className={`flex-1 h-14 font-bold text-lg transition-all duration-300 ${
                     answer === "nao" 
-                      ? "bg-gradient-to-r from-destructive to-destructive/90 text-destructive-foreground shadow-xl hover:shadow-2xl transform hover:scale-105" 
-                      : "border-2 border-destructive/50 text-destructive hover:bg-destructive/10 hover:border-destructive"
+                      ? "text-white shadow-xl hover:shadow-2xl transform hover:scale-105" 
+                      : "hover:scale-105"
                   }`}
+                  style={{
+                    backgroundColor: answer === "nao" ? customColors.btnNo : 'transparent',
+                    borderColor: customColors.btnNo,
+                    color: answer === "nao" ? 'white' : customColors.btnNo,
+                    borderWidth: '2px'
+                  }}
                 >
                   <XCircle className="w-5 h-5 mr-2" />
                   ❌ Não
@@ -83,18 +123,31 @@ export function QuestionCard({
                 placeholder="📝 Digite sua resposta..."
                 value={answer || ""}
                 onChange={(e) => onAnswer(question.id, e.target.value)}
-                className="h-14 text-lg border-2 border-gold/30 focus:border-gold focus:ring-gold/20 shadow-sm"
+                className="h-14 text-lg shadow-sm border-2"
+                style={{ 
+                  backgroundColor: customColors.field,
+                  borderColor: `${customColors.title}30`,
+                  color: customColors.title
+                }}
               />
             )}
 
             {question.tipo === "data" && answer === "sim" && (
               <div className="relative">
-                <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                <Calendar 
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5" 
+                  style={{ color: customColors.text }}
+                />
                 <Input
                   type="date"
                   value={dateValue || ""}
                   onChange={(e) => onDateChange(question.id, e.target.value)}
-                  className="h-14 pl-12 text-lg border-2 border-gold/30 focus:border-gold focus:ring-gold/20 shadow-sm"
+                  className="h-14 pl-12 text-lg shadow-sm border-2"
+                  style={{ 
+                    backgroundColor: customColors.field,
+                    borderColor: `${customColors.title}30`,
+                    color: customColors.title
+                  }}
                 />
               </div>
             )}

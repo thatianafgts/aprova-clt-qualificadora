@@ -51,6 +51,21 @@ export default function Admin() {
   const [logo, setLogo] = useState<string>("");
   const [whatsappNumber, setWhatsappNumber] = useState<string>("");
   const [newPassword, setNewPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [showForgotPassword, setShowForgotPassword] = useState<boolean>(false);
+  const [forgotPasswordInput, setForgotPasswordInput] = useState<string>("");
+  const [forgotPasswordConfirm, setForgotPasswordConfirm] = useState<string>("");
+  
+  // Color customization states
+  const [customBg, setCustomBg] = useState<string>("#ffffff");
+  const [customTitle, setCustomTitle] = useState<string>("#1e40af");
+  const [customText, setCustomText] = useState<string>("#64748b");
+  const [customField, setCustomField] = useState<string>("#ffffff");
+  const [customBtnYes, setCustomBtnYes] = useState<string>("#059669");
+  const [customBtnNo, setCustomBtnNo] = useState<string>("#dc2626");
+  
   const { toast } = useToast();
 
   useEffect(() => {
@@ -102,6 +117,25 @@ export default function Admin() {
     if (savedWhatsapp) {
       setWhatsappNumber(savedWhatsapp);
     }
+
+    // Load custom colors
+    const savedCustomBg = localStorage.getItem("aprovaclt_custom_bg");
+    if (savedCustomBg) setCustomBg(savedCustomBg);
+    
+    const savedCustomTitle = localStorage.getItem("aprovaclt_custom_title");
+    if (savedCustomTitle) setCustomTitle(savedCustomTitle);
+    
+    const savedCustomText = localStorage.getItem("aprovaclt_custom_text");
+    if (savedCustomText) setCustomText(savedCustomText);
+    
+    const savedCustomField = localStorage.getItem("aprovaclt_custom_field");
+    if (savedCustomField) setCustomField(savedCustomField);
+    
+    const savedCustomBtnYes = localStorage.getItem("aprovaclt_custom_btn_yes");
+    if (savedCustomBtnYes) setCustomBtnYes(savedCustomBtnYes);
+    
+    const savedCustomBtnNo = localStorage.getItem("aprovaclt_custom_btn_no");
+    if (savedCustomBtnNo) setCustomBtnNo(savedCustomBtnNo);
   };
 
   const handleLogin = () => {
@@ -307,6 +341,138 @@ export default function Admin() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Color Customization */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                🎨 Personalização de Cores
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Cor de Fundo</Label>
+                  <div className="flex gap-2 mt-1">
+                    <input
+                      type="color"
+                      value={customBg}
+                      onChange={(e) => setCustomBg(e.target.value)}
+                      className="w-10 h-10 rounded border"
+                    />
+                    <Input
+                      value={customBg}
+                      onChange={(e) => setCustomBg(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label>Cor do Título</Label>
+                  <div className="flex gap-2 mt-1">
+                    <input
+                      type="color"
+                      value={customTitle}
+                      onChange={(e) => setCustomTitle(e.target.value)}
+                      className="w-10 h-10 rounded border"
+                    />
+                    <Input
+                      value={customTitle}
+                      onChange={(e) => setCustomTitle(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label>Cor do Texto</Label>
+                  <div className="flex gap-2 mt-1">
+                    <input
+                      type="color"
+                      value={customText}
+                      onChange={(e) => setCustomText(e.target.value)}
+                      className="w-10 h-10 rounded border"
+                    />
+                    <Input
+                      value={customText}
+                      onChange={(e) => setCustomText(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label>Cor dos Campos</Label>
+                  <div className="flex gap-2 mt-1">
+                    <input
+                      type="color"
+                      value={customField}
+                      onChange={(e) => setCustomField(e.target.value)}
+                      className="w-10 h-10 rounded border"
+                    />
+                    <Input
+                      value={customField}
+                      onChange={(e) => setCustomField(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label>Botão SIM</Label>
+                  <div className="flex gap-2 mt-1">
+                    <input
+                      type="color"
+                      value={customBtnYes}
+                      onChange={(e) => setCustomBtnYes(e.target.value)}
+                      className="w-10 h-10 rounded border"
+                    />
+                    <Input
+                      value={customBtnYes}
+                      onChange={(e) => setCustomBtnYes(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label>Botão NÃO</Label>
+                  <div className="flex gap-2 mt-1">
+                    <input
+                      type="color"
+                      value={customBtnNo}
+                      onChange={(e) => setCustomBtnNo(e.target.value)}
+                      className="w-10 h-10 rounded border"
+                    />
+                    <Input
+                      value={customBtnNo}
+                      onChange={(e) => setCustomBtnNo(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <Button
+                onClick={() => {
+                  localStorage.setItem("aprovaclt_custom_bg", customBg);
+                  localStorage.setItem("aprovaclt_custom_title", customTitle);
+                  localStorage.setItem("aprovaclt_custom_text", customText);
+                  localStorage.setItem("aprovaclt_custom_field", customField);
+                  localStorage.setItem("aprovaclt_custom_btn_yes", customBtnYes);
+                  localStorage.setItem("aprovaclt_custom_btn_no", customBtnNo);
+                  toast({
+                    title: "Cores personalizadas salvas!",
+                    description: "As alterações serão aplicadas na página inicial.",
+                  });
+                }}
+                className="w-full mt-4"
+              >
+                Salvar Personalização
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* Logo Management */}
           <Card>
             <CardHeader>
@@ -357,41 +523,94 @@ export default function Admin() {
 
                 <div>
                   <Label htmlFor="newPassword">Nova Senha do Admin</Label>
-                  <div className="flex gap-2 mt-2">
-                    <Input
-                      id="newPassword"
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Digite a nova senha"
-                      className="flex-1"
-                    />
-                    <Button
-                      onClick={() => {
-                        if (newPassword.trim()) {
+                  <div className="space-y-3 mt-2">
+                    <div className="relative">
+                      <Input
+                        id="newPassword"
+                        type={showPassword ? "text" : "password"}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Digite a nova senha"
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? "🙈" : "👁️"}
+                      </Button>
+                    </div>
+                    
+                    <div className="relative">
+                      <Input
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Confirme a nova senha"
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? "🙈" : "👁️"}
+                      </Button>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => {
+                          if (!newPassword.trim() || !confirmPassword.trim()) {
+                            toast({
+                              title: "Erro",
+                              description: "Preencha ambos os campos de senha.",
+                              variant: "destructive"
+                            });
+                            return;
+                          }
+                          
+                          if (newPassword !== confirmPassword) {
+                            toast({
+                              title: "Erro",
+                              description: "As senhas não coincidem.",
+                              variant: "destructive"
+                            });
+                            return;
+                          }
+                          
                           localStorage.setItem("aprovaclt_admin_password", newPassword);
                           setNewPassword("");
+                          setConfirmPassword("");
                           toast({
                             title: "Senha atualizada!",
                             description: "Nova senha salva com sucesso.",
                           });
-                        } else {
-                          toast({
-                            title: "Erro",
-                            description: "Digite uma senha válida.",
-                            variant: "destructive"
-                          });
-                        }
-                      }}
-                      size="sm"
-                      disabled={!newPassword.trim()}
-                    >
-                      Alterar
-                    </Button>
+                        }}
+                        size="sm"
+                        disabled={!newPassword.trim() || !confirmPassword.trim()}
+                      >
+                        Alterar Senha
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowForgotPassword(true)}
+                      >
+                        Esqueci Minha Senha
+                      </Button>
+                    </div>
+                    
+                    <p className="text-xs text-muted-foreground">
+                      A senha atual será alterada imediatamente após confirmação
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    A senha atual será alterada imediatamente
-                  </p>
                 </div>
               </div>
             </CardContent>
@@ -541,6 +760,103 @@ export default function Admin() {
           </Card>
         )}
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="w-full max-w-md mx-4">
+            <CardHeader>
+              <CardTitle>Redefinir Senha</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  value={forgotPasswordInput}
+                  onChange={(e) => setForgotPasswordInput(e.target.value)}
+                  placeholder="Nova senha"
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "🙈" : "👁️"}
+                </Button>
+              </div>
+              
+              <div className="relative">
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={forgotPasswordConfirm}
+                  onChange={(e) => setForgotPasswordConfirm(e.target.value)}
+                  placeholder="Confirmar nova senha"
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? "🙈" : "👁️"}
+                </Button>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => {
+                    if (!forgotPasswordInput.trim() || !forgotPasswordConfirm.trim()) {
+                      toast({
+                        title: "Erro",
+                        description: "Preencha ambos os campos.",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+                    
+                    if (forgotPasswordInput !== forgotPasswordConfirm) {
+                      toast({
+                        title: "Erro",
+                        description: "As senhas não coincidem.",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+                    
+                    localStorage.setItem("aprovaclt_admin_password", forgotPasswordInput);
+                    setForgotPasswordInput("");
+                    setForgotPasswordConfirm("");
+                    setShowForgotPassword(false);
+                    toast({
+                      title: "Senha redefinida!",
+                      description: "Nova senha salva com sucesso.",
+                    });
+                  }}
+                  className="flex-1"
+                >
+                  Salvar
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowForgotPassword(false);
+                    setForgotPasswordInput("");
+                    setForgotPasswordConfirm("");
+                  }}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

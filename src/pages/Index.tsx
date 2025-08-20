@@ -7,6 +7,7 @@ import { ProgressBar } from "@/components/ProgressBar";
 import { useToast } from "@/hooks/use-toast";
 import { MessageCircle, Settings, Building } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Question {
   id: number;
@@ -27,6 +28,14 @@ const Index = () => {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [logo, setLogo] = useState<string>("");
+  const [customColors, setCustomColors] = useState({
+    bg: "#ffffff",
+    title: "#1e40af",
+    text: "#64748b",
+    field: "#ffffff",
+    btnYes: "#059669",
+    btnNo: "#dc2626"
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -56,6 +65,16 @@ const Index = () => {
     if (savedLogo) {
       setLogo(savedLogo);
     }
+
+    // Load custom colors
+    setCustomColors({
+      bg: localStorage.getItem("aprovaclt_custom_bg") || "#ffffff",
+      title: localStorage.getItem("aprovaclt_custom_title") || "#1e40af",
+      text: localStorage.getItem("aprovaclt_custom_text") || "#64748b",
+      field: localStorage.getItem("aprovaclt_custom_field") || "#ffffff",
+      btnYes: localStorage.getItem("aprovaclt_custom_btn_yes") || "#059669",
+      btnNo: localStorage.getItem("aprovaclt_custom_btn_no") || "#dc2626"
+    });
   }, []);
 
   const isQuestionVisible = (question: Question) => {
@@ -109,7 +128,7 @@ const Index = () => {
     return emailRegex.test(email);
   };
 
-  const handleWhatsAppSubmit = () => {
+  const handleWhatsAppSubmit = async () => {
     // Verificar campos obrigatórios
     if (!name.trim() || !phone.trim()) {
       toast({
@@ -151,22 +170,47 @@ const Index = () => {
       return;
     }
 
-    // Save response
+    // Save response to Supabase and localStorage
     const response = {
-      id: Date.now().toString(),
       nome: name,
       telefone: phone,
-      email: email,
+      email: email || null,
+      assunto: "Empréstimo CLT",
       respostas: answers,
       datas: dates,
       sim: yesCount,
       nao: noCount,
-      timestamp: new Date().toISOString()
+      percentual_aprovacao: totalAnswered > 0 ? (yesCount / totalAnswered) * 100 : 0
     };
 
+    try {
+      // Save to Supabase
+      const { error } = await supabase
+        .from('respostas')
+        .insert([response]);
+
+      if (error) {
+        console.error('Erro ao salvar no Supabase:', error);
+        toast({
+          title: "Aviso",
+          description: "Dados salvos localmente. Conexão com servidor indisponível.",
+          variant: "default"
+        });
+      }
+    } catch (error) {
+      console.error('Erro de conexão:', error);
+    }
+
+    // Also save to localStorage as backup
+    const localResponse = {
+      ...response,
+      id: Date.now().toString(),
+      timestamp: new Date().toISOString()
+    };
+    
     const savedResponses = localStorage.getItem("aprovaclt_responses");
     const responses = savedResponses ? JSON.parse(savedResponses) : [];
-    responses.push(response);
+    responses.push(localResponse);
     localStorage.setItem("aprovaclt_responses", JSON.stringify(responses));
 
     // Open WhatsApp
@@ -182,7 +226,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-gold-light/30 to-background">
+    <div 
+      className="min-h-screen transition-colors duration-300"
+      style={{ 
+        backgroundColor: customColors.bg,
+        background: `linear-gradient(135deg, ${customColors.bg}, ${customColors.bg}f0)`
+      }}
+    >
       {/* Header */}
       <header className="bg-card/80 backdrop-blur-lg border-b border-gold/30 shadow-elegant">
         <div className="max-w-4xl mx-auto px-4 py-6 flex items-center justify-between">
@@ -214,10 +264,16 @@ const Index = () => {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="text-center mb-10">
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-primary via-gold to-primary bg-clip-text text-transparent mb-6 animate-slide-up">
+          <h2 
+            className="text-4xl font-bold mb-6 animate-slide-up"
+            style={{ color: customColors.title }}
+          >
             🎯 Descubra suas Chances de Conseguir um Empréstimo CLT
           </h2>
-          <p className="text-xl text-muted-foreground font-medium leading-relaxed max-w-2xl mx-auto">
+          <p 
+            className="text-xl font-medium leading-relaxed max-w-2xl mx-auto"
+            style={{ color: customColors.text }}
+          >
             ✨ Responda algumas perguntas e veja sua probabilidade de aprovação em tempo real
           </p>
         </div>
@@ -237,17 +293,27 @@ const Index = () => {
                   placeholder="📝 Nome completo *"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="h-14 text-lg border-gold/30 focus:border-gold shadow-sm"
+                  className="h-14 text-lg shadow-sm border-2"
+                  style={{ 
+                    backgroundColor: customColors.field,
+                    borderColor: `${customColors.title}30`,
+                    color: customColors.title
+                  }}
                 />
                 <Input
                   placeholder="📱 Celular (WhatsApp) * - Ex: (11) 99999-9999"
                   value={phone}
                   onChange={handlePhoneChange}
-                  className="h-14 text-lg border-gold/30 focus:border-gold shadow-sm"
+                  className="h-14 text-lg shadow-sm border-2"
+                  style={{ 
+                    backgroundColor: customColors.field,
+                    borderColor: `${customColors.title}30`,
+                    color: customColors.title
+                  }}
                   maxLength={15}
                 />
                 {phone && !validatePhone(phone) && (
-                  <p className="text-sm text-destructive font-medium">
+                  <p className="text-sm text-red-600 font-medium">
                     ⚠️ Digite seu telefone com DDD: (11) 99999-9999
                   </p>
                 )}
@@ -256,10 +322,15 @@ const Index = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-14 text-lg border-gold/30 focus:border-gold shadow-sm"
+                  className="h-14 text-lg shadow-sm border-2"
+                  style={{ 
+                    backgroundColor: customColors.field,
+                    borderColor: `${customColors.title}30`,
+                    color: customColors.title
+                  }}
                 />
                 {email && !validateEmail(email) && (
-                  <p className="text-sm text-destructive font-medium">
+                  <p className="text-sm text-red-600 font-medium">
                     ⚠️ Digite um email válido: usuario@email.com
                   </p>
                 )}
