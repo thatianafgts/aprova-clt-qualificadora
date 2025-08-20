@@ -34,7 +34,10 @@ const Index = () => {
     text: "#64748b",
     field: "#ffffff",
     btnYes: "#059669",
-    btnNo: "#dc2626"
+    btnNo: "#dc2626",
+    aprovaCltTitle: "#1e40af",
+    questionNumbers: "#1e40af",
+    approvalChances: "#1e40af"
   });
   const { toast } = useToast();
 
@@ -73,7 +76,10 @@ const Index = () => {
       text: localStorage.getItem("aprovaclt_custom_text") || "#64748b",
       field: localStorage.getItem("aprovaclt_custom_field") || "#ffffff",
       btnYes: localStorage.getItem("aprovaclt_custom_btn_yes") || "#059669",
-      btnNo: localStorage.getItem("aprovaclt_custom_btn_no") || "#dc2626"
+      btnNo: localStorage.getItem("aprovaclt_custom_btn_no") || "#dc2626",
+      aprovaCltTitle: localStorage.getItem("aprovaclt_custom_aprovaclt_title") || "#1e40af",
+      questionNumbers: localStorage.getItem("aprovaclt_custom_question_numbers") || "#1e40af",
+      approvalChances: localStorage.getItem("aprovaclt_custom_approval_chances") || "#1e40af"
     });
   }, []);
 
@@ -245,7 +251,7 @@ const Index = () => {
               </div>
             )}
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-gold to-primary bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-gold to-primary bg-clip-text text-transparent" style={{ color: customColors.aprovaCltTitle }}>
                 AprovaCLT
               </h1>
               <p className="text-sm text-muted-foreground font-medium">💰 Qualificação de Empréstimo Profissional</p>

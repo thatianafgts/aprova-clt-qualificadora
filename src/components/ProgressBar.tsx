@@ -52,7 +52,7 @@ export function ProgressBar({ yesCount, noCount, totalAnswered }: ProgressBarPro
   return (
     <div className="space-y-4 p-6 bg-card rounded-xl shadow-elegant border border-gold/30 backdrop-blur-sm">
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-foreground text-xl bg-gradient-to-r from-primary to-gold bg-clip-text text-transparent">
+        <h3 className="font-bold text-foreground text-xl bg-gradient-to-r from-primary to-gold bg-clip-text text-transparent" style={{ color: localStorage.getItem("aprovaclt_custom_approval_chances") || "#1e40af" }}>
           Chances de Aprovação
         </h3>
         <div className={`flex items-center gap-2 px-4 py-2 rounded-full shadow-lg ${bgColor} ${textColor} animate-slide-up`}>

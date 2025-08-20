@@ -40,7 +40,8 @@ export function QuestionCard({
     text: "#64748b",
     field: "#ffffff",
     btnYes: "#059669",
-    btnNo: "#dc2626"
+    btnNo: "#dc2626",
+    questionNumbers: "#1e40af"
   });
 
   useEffect(() => {
@@ -51,7 +52,8 @@ export function QuestionCard({
       text: localStorage.getItem("aprovaclt_custom_text") || "#64748b",
       field: localStorage.getItem("aprovaclt_custom_field") || "#ffffff",
       btnYes: localStorage.getItem("aprovaclt_custom_btn_yes") || "#059669",
-      btnNo: localStorage.getItem("aprovaclt_custom_btn_no") || "#dc2626"
+      btnNo: localStorage.getItem("aprovaclt_custom_btn_no") || "#dc2626",
+      questionNumbers: localStorage.getItem("aprovaclt_custom_question_numbers") || "#1e40af"
     });
   }, []);
 
@@ -63,7 +65,12 @@ export function QuestionCard({
         <div className="flex items-start gap-4">
           <div 
             className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shadow-lg text-white"
-            style={{ backgroundColor: customColors.title }}
+            style={{ 
+              color: customColors.questionNumbers,
+              backgroundColor: 'transparent',
+              border: `2px solid ${customColors.questionNumbers}`,
+              boxShadow: 'none'
+            }}
           >
             {questionIndex + 1}
           </div>

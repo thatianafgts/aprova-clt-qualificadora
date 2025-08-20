@@ -65,6 +65,9 @@ export default function Admin() {
   const [customField, setCustomField] = useState<string>("#ffffff");
   const [customBtnYes, setCustomBtnYes] = useState<string>("#059669");
   const [customBtnNo, setCustomBtnNo] = useState<string>("#dc2626");
+  const [customAprovaCltTitle, setCustomAprovaCltTitle] = useState<string>("#1e40af");
+  const [customQuestionNumbers, setCustomQuestionNumbers] = useState<string>("#1e40af");
+  const [customApprovalChances, setCustomApprovalChances] = useState<string>("#1e40af");
   
   const { toast } = useToast();
 
@@ -136,6 +139,15 @@ export default function Admin() {
     
     const savedCustomBtnNo = localStorage.getItem("aprovaclt_custom_btn_no");
     if (savedCustomBtnNo) setCustomBtnNo(savedCustomBtnNo);
+    
+    const savedCustomAprovaCltTitle = localStorage.getItem("aprovaclt_custom_aprovaclt_title");
+    if (savedCustomAprovaCltTitle) setCustomAprovaCltTitle(savedCustomAprovaCltTitle);
+    
+    const savedCustomQuestionNumbers = localStorage.getItem("aprovaclt_custom_question_numbers");
+    if (savedCustomQuestionNumbers) setCustomQuestionNumbers(savedCustomQuestionNumbers);
+    
+    const savedCustomApprovalChances = localStorage.getItem("aprovaclt_custom_approval_chances");
+    if (savedCustomApprovalChances) setCustomApprovalChances(savedCustomApprovalChances);
   };
 
   const handleLogin = () => {
@@ -451,6 +463,57 @@ export default function Admin() {
                     />
                   </div>
                 </div>
+                
+                <div>
+                  <Label>Título AprovaCLT</Label>
+                  <div className="flex gap-2 mt-1">
+                    <input
+                      type="color"
+                      value={customAprovaCltTitle}
+                      onChange={(e) => setCustomAprovaCltTitle(e.target.value)}
+                      className="w-10 h-10 rounded border"
+                    />
+                    <Input
+                      value={customAprovaCltTitle}
+                      onChange={(e) => setCustomAprovaCltTitle(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label>Números das Perguntas</Label>
+                  <div className="flex gap-2 mt-1">
+                    <input
+                      type="color"
+                      value={customQuestionNumbers}
+                      onChange={(e) => setCustomQuestionNumbers(e.target.value)}
+                      className="w-10 h-10 rounded border"
+                    />
+                    <Input
+                      value={customQuestionNumbers}
+                      onChange={(e) => setCustomQuestionNumbers(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label>Chances de Aprovação</Label>
+                  <div className="flex gap-2 mt-1">
+                    <input
+                      type="color"
+                      value={customApprovalChances}
+                      onChange={(e) => setCustomApprovalChances(e.target.value)}
+                      className="w-10 h-10 rounded border"
+                    />
+                    <Input
+                      value={customApprovalChances}
+                      onChange={(e) => setCustomApprovalChances(e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
               </div>
               
               <Button
@@ -461,6 +524,9 @@ export default function Admin() {
                   localStorage.setItem("aprovaclt_custom_field", customField);
                   localStorage.setItem("aprovaclt_custom_btn_yes", customBtnYes);
                   localStorage.setItem("aprovaclt_custom_btn_no", customBtnNo);
+                  localStorage.setItem("aprovaclt_custom_aprovaclt_title", customAprovaCltTitle);
+                  localStorage.setItem("aprovaclt_custom_question_numbers", customQuestionNumbers);
+                  localStorage.setItem("aprovaclt_custom_approval_chances", customApprovalChances);
                   toast({
                     title: "Cores personalizadas salvas!",
                     description: "As alterações serão aplicadas na página inicial.",
