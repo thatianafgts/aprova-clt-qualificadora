@@ -241,26 +241,26 @@ const Index = () => {
     >
       {/* Header */}
       <header className="bg-card/80 backdrop-blur-lg border-b border-gold/30 shadow-elegant">
-        <div className="max-w-4xl mx-auto px-4 py-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6 flex items-center justify-between">
+          <div className="flex items-center gap-3 sm:gap-4">
             {logo ? (
-              <img src={logo} alt="Logo" className="h-14 w-14 object-contain rounded-xl shadow-lg" />
+              <img src={logo} alt="Logo" className="h-10 w-10 sm:h-14 sm:w-14 object-contain rounded-xl shadow-lg" />
             ) : (
-              <div className="h-14 w-14 bg-gradient-to-br from-primary to-primary-hover rounded-xl flex items-center justify-center shadow-lg animate-pulse-gold">
-                <Building className="h-8 w-8 text-primary-foreground" />
+              <div className="h-10 w-10 sm:h-14 sm:w-14 bg-gradient-to-br from-primary to-primary-hover rounded-xl flex items-center justify-center shadow-lg animate-pulse-gold">
+                <Building className="h-5 w-5 sm:h-8 sm:w-8 text-primary-foreground" />
               </div>
             )}
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-gold to-primary bg-clip-text text-transparent" style={{ color: customColors.aprovaCltTitle }}>
+              <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-primary via-gold to-primary bg-clip-text text-transparent" style={{ color: customColors.aprovaCltTitle }}>
                 AprovaCLT
               </h1>
-              <p className="text-sm text-muted-foreground font-medium">💰 Qualificação de Empréstimo Profissional</p>
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium">💰 Qualificação de Empréstimo Profissional</p>
             </div>
           </div>
           
           <Link to="/admin">
-            <Button variant="outline" size="sm" className="shadow-lg hover:shadow-xl transition-all duration-300">
-              <Settings className="w-4 h-4 mr-2" />
+            <Button variant="outline" size="sm" className="shadow-lg hover:shadow-xl transition-all duration-300 text-xs sm:text-sm">
+              <Settings className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               Admin
             </Button>
           </Link>
@@ -268,38 +268,38 @@ const Index = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center mb-10">
+      <main className="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
+        <div className="text-center mb-8 sm:mb-10">
           <h2 
-            className="text-4xl font-bold mb-6 animate-slide-up"
+            className="text-2xl sm:text-4xl font-bold mb-4 sm:mb-6 animate-slide-up px-2"
             style={{ color: customColors.title }}
           >
             🎯 Descubra suas Chances de Conseguir um Empréstimo CLT
           </h2>
           <p 
-            className="text-xl font-medium leading-relaxed max-w-2xl mx-auto"
+            className="text-base sm:text-xl font-medium leading-relaxed max-w-2xl mx-auto px-4"
             style={{ color: customColors.text }}
           >
             ✨ Responda algumas perguntas e veja sua probabilidade de aprovação em tempo real
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Form Section */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Personal Info */}
             <Card className="shadow-elegant border border-gold/20 bg-card/50 backdrop-blur-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-xl font-bold text-primary flex items-center gap-2">
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="text-lg sm:text-xl font-bold text-primary flex items-center gap-2">
                   👤 Seus Dados Pessoais
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 sm:space-y-4">
                 <Input
                   placeholder="📝 Nome completo *"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="h-14 text-lg shadow-sm border-2"
+                  className="h-12 sm:h-14 text-base sm:text-lg shadow-sm border-2"
                   style={{ 
                     backgroundColor: customColors.field,
                     borderColor: `${customColors.title}30`,
@@ -310,7 +310,7 @@ const Index = () => {
                   placeholder="📱 Celular (WhatsApp) * - Ex: (11) 99999-9999"
                   value={phone}
                   onChange={handlePhoneChange}
-                  className="h-14 text-lg shadow-sm border-2"
+                  className="h-12 sm:h-14 text-base sm:text-lg shadow-sm border-2"
                   style={{ 
                     backgroundColor: customColors.field,
                     borderColor: `${customColors.title}30`,
@@ -328,7 +328,7 @@ const Index = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-14 text-lg shadow-sm border-2"
+                  className="h-12 sm:h-14 text-base sm:text-lg shadow-sm border-2"
                   style={{ 
                     backgroundColor: customColors.field,
                     borderColor: `${customColors.title}30`,
@@ -360,10 +360,10 @@ const Index = () => {
             {/* WhatsApp Button */}
             <Button
               onClick={handleWhatsAppSubmit}
-              className="w-full h-16 text-xl font-bold bg-gradient-to-r from-success to-success/90 hover:from-success/90 hover:to-success shadow-xl hover:shadow-2xl transition-all duration-300 animate-pulse-gold"
+              className="w-full h-14 sm:h-16 text-lg sm:text-xl font-bold bg-gradient-to-r from-success to-success/90 hover:from-success/90 hover:to-success shadow-xl hover:shadow-2xl transition-all duration-300 animate-pulse-gold"
               disabled={!name.trim() || !phone.trim()}
             >
-              <MessageCircle className="w-6 h-6 mr-3" />
+              <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
               🚀 Seguir com Especialista
             </Button>
           </div>

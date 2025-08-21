@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { LogoUpload } from "@/components/LogoUpload";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Users, TrendingUp, Settings, LogOut, Home, Phone } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Plus, Edit, Trash2, Users, TrendingUp, Settings, LogOut, Home, Phone, Eye, EyeOff, Palette } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 interface Question {
   id: number;
@@ -36,9 +36,12 @@ interface Response {
 }
 
 export default function Admin() {
+  const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showForgotPasswordLogin, setShowForgotPasswordLogin] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [responses, setResponses] = useState<Response[]>([]);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
@@ -250,24 +253,46 @@ export default function Admin() {
             </div>
             <div>
               <Label htmlFor="password">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Digite sua senha"
-                onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-              />
-            </div>
-            <div className="flex gap-2">
-              <Link to="/" className="flex-1">
-                <Button variant="outline" className="w-full">
-                  <Home className="w-4 h-4 mr-2" />
-                  Voltar
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showLoginPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Digite sua senha"
+                  onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowLoginPassword(!showLoginPassword)}
+                >
+                  {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
-              </Link>
-              <Button onClick={handleLogin} className="flex-1">
-                Entrar
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <Link to="/" className="flex-1">
+                  <Button variant="outline" className="w-full">
+                    <Home className="w-4 h-4 mr-2" />
+                    Voltar
+                  </Button>
+                </Link>
+                <Button onClick={handleLogin} className="flex-1">
+                  Entrar
+                </Button>
+              </div>
+              
+              <Button 
+                variant="link" 
+                className="w-full text-sm"
+                onClick={() => setShowForgotPasswordLogin(true)}
+              >
+                Esqueci minha senha
               </Button>
             </div>
             <p className="text-xs text-muted-foreground text-center">
@@ -357,184 +382,21 @@ export default function Admin() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                🎨 Personalização de Cores
+                <Palette className="w-5 h-5" />
+                Personalização de Cores
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Cor de Fundo</Label>
-                  <div className="flex gap-2 mt-1">
-                    <input
-                      type="color"
-                      value={customBg}
-                      onChange={(e) => setCustomBg(e.target.value)}
-                      className="w-10 h-10 rounded border"
-                    />
-                    <Input
-                      value={customBg}
-                      onChange={(e) => setCustomBg(e.target.value)}
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label>Cor do Título</Label>
-                  <div className="flex gap-2 mt-1">
-                    <input
-                      type="color"
-                      value={customTitle}
-                      onChange={(e) => setCustomTitle(e.target.value)}
-                      className="w-10 h-10 rounded border"
-                    />
-                    <Input
-                      value={customTitle}
-                      onChange={(e) => setCustomTitle(e.target.value)}
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label>Cor do Texto</Label>
-                  <div className="flex gap-2 mt-1">
-                    <input
-                      type="color"
-                      value={customText}
-                      onChange={(e) => setCustomText(e.target.value)}
-                      className="w-10 h-10 rounded border"
-                    />
-                    <Input
-                      value={customText}
-                      onChange={(e) => setCustomText(e.target.value)}
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label>Cor dos Campos</Label>
-                  <div className="flex gap-2 mt-1">
-                    <input
-                      type="color"
-                      value={customField}
-                      onChange={(e) => setCustomField(e.target.value)}
-                      className="w-10 h-10 rounded border"
-                    />
-                    <Input
-                      value={customField}
-                      onChange={(e) => setCustomField(e.target.value)}
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label>Botão SIM</Label>
-                  <div className="flex gap-2 mt-1">
-                    <input
-                      type="color"
-                      value={customBtnYes}
-                      onChange={(e) => setCustomBtnYes(e.target.value)}
-                      className="w-10 h-10 rounded border"
-                    />
-                    <Input
-                      value={customBtnYes}
-                      onChange={(e) => setCustomBtnYes(e.target.value)}
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label>Botão NÃO</Label>
-                  <div className="flex gap-2 mt-1">
-                    <input
-                      type="color"
-                      value={customBtnNo}
-                      onChange={(e) => setCustomBtnNo(e.target.value)}
-                      className="w-10 h-10 rounded border"
-                    />
-                    <Input
-                      value={customBtnNo}
-                      onChange={(e) => setCustomBtnNo(e.target.value)}
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label>Título AprovaCLT</Label>
-                  <div className="flex gap-2 mt-1">
-                    <input
-                      type="color"
-                      value={customAprovaCltTitle}
-                      onChange={(e) => setCustomAprovaCltTitle(e.target.value)}
-                      className="w-10 h-10 rounded border"
-                    />
-                    <Input
-                      value={customAprovaCltTitle}
-                      onChange={(e) => setCustomAprovaCltTitle(e.target.value)}
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label>Números das Perguntas</Label>
-                  <div className="flex gap-2 mt-1">
-                    <input
-                      type="color"
-                      value={customQuestionNumbers}
-                      onChange={(e) => setCustomQuestionNumbers(e.target.value)}
-                      className="w-10 h-10 rounded border"
-                    />
-                    <Input
-                      value={customQuestionNumbers}
-                      onChange={(e) => setCustomQuestionNumbers(e.target.value)}
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label>Chances de Aprovação</Label>
-                  <div className="flex gap-2 mt-1">
-                    <input
-                      type="color"
-                      value={customApprovalChances}
-                      onChange={(e) => setCustomApprovalChances(e.target.value)}
-                      className="w-10 h-10 rounded border"
-                    />
-                    <Input
-                      value={customApprovalChances}
-                      onChange={(e) => setCustomApprovalChances(e.target.value)}
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-              </div>
+              <p className="text-muted-foreground mb-4">
+                Customize as cores da página inicial do questionário
+              </p>
               
               <Button
-                onClick={() => {
-                  localStorage.setItem("aprovaclt_custom_bg", customBg);
-                  localStorage.setItem("aprovaclt_custom_title", customTitle);
-                  localStorage.setItem("aprovaclt_custom_text", customText);
-                  localStorage.setItem("aprovaclt_custom_field", customField);
-                  localStorage.setItem("aprovaclt_custom_btn_yes", customBtnYes);
-                  localStorage.setItem("aprovaclt_custom_btn_no", customBtnNo);
-                  localStorage.setItem("aprovaclt_custom_aprovaclt_title", customAprovaCltTitle);
-                  localStorage.setItem("aprovaclt_custom_question_numbers", customQuestionNumbers);
-                  localStorage.setItem("aprovaclt_custom_approval_chances", customApprovalChances);
-                  toast({
-                    title: "Cores personalizadas salvas!",
-                    description: "As alterações serão aplicadas na página inicial.",
-                  });
-                }}
-                className="w-full mt-4"
+                onClick={() => navigate("/colors")}
+                className="w-full"
               >
-                Salvar Personalização
+                <Palette className="w-4 h-4 mr-2" />
+                Abrir Personalização de Cores
               </Button>
             </CardContent>
           </Card>
@@ -599,15 +461,15 @@ export default function Admin() {
                         placeholder="Digite a nova senha"
                         className="pr-10"
                       />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? "🙈" : "👁️"}
-                      </Button>
+                       <Button
+                         type="button"
+                         variant="ghost"
+                         size="sm"
+                         className="absolute right-0 top-0 h-full px-3"
+                         onClick={() => setShowPassword(!showPassword)}
+                       >
+                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                       </Button>
                     </div>
                     
                     <div className="relative">
@@ -618,15 +480,15 @@ export default function Admin() {
                         placeholder="Confirme a nova senha"
                         className="pr-10"
                       />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      >
-                        {showConfirmPassword ? "🙈" : "👁️"}
-                      </Button>
+                       <Button
+                         type="button"
+                         variant="ghost"
+                         size="sm"
+                         className="absolute right-0 top-0 h-full px-3"
+                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                       >
+                         {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                       </Button>
                     </div>
                     
                     <div className="flex gap-2">
@@ -827,7 +689,104 @@ export default function Admin() {
         )}
       </div>
 
-      {/* Forgot Password Modal */}
+      {/* Forgot Password Login Modal */}
+      {showForgotPasswordLogin && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="w-full max-w-md mx-4">
+            <CardHeader>
+              <CardTitle>Redefinir Senha de Acesso</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  value={forgotPasswordInput}
+                  onChange={(e) => setForgotPasswordInput(e.target.value)}
+                  placeholder="Nova senha"
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </Button>
+              </div>
+              
+              <div className="relative">
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={forgotPasswordConfirm}
+                  onChange={(e) => setForgotPasswordConfirm(e.target.value)}
+                  placeholder="Confirmar nova senha"
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </Button>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => {
+                    if (!forgotPasswordInput.trim() || !forgotPasswordConfirm.trim()) {
+                      toast({
+                        title: "Erro",
+                        description: "Preencha ambos os campos.",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+                    
+                    if (forgotPasswordInput !== forgotPasswordConfirm) {
+                      toast({
+                        title: "Erro",
+                        description: "As senhas não coincidem.",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+                    
+                    localStorage.setItem("aprovaclt_admin_password", forgotPasswordInput);
+                    setForgotPasswordInput("");
+                    setForgotPasswordConfirm("");
+                    setShowForgotPasswordLogin(false);
+                    toast({
+                      title: "Senha redefinida!",
+                      description: "Nova senha salva com sucesso. Faça login novamente.",
+                    });
+                  }}
+                  className="flex-1"
+                >
+                  Salvar Nova Senha
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowForgotPasswordLogin(false);
+                    setForgotPasswordInput("");
+                    setForgotPasswordConfirm("");
+                  }}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Forgot Password Modal (existing - from within admin panel) */}
       {showForgotPassword && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <Card className="w-full max-w-md mx-4">
@@ -850,7 +809,7 @@ export default function Admin() {
                   className="absolute right-0 top-0 h-full px-3"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? "🙈" : "👁️"}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
               </div>
               
@@ -869,7 +828,7 @@ export default function Admin() {
                   className="absolute right-0 top-0 h-full px-3"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
-                  {showConfirmPassword ? "🙈" : "👁️"}
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
               </div>
               
