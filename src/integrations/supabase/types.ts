@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_settings: {
+        Row: {
+          id: string
+          password_hash: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          id?: string
+          password_hash: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          id?: string
+          password_hash?: string
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      lovable_respostas: {
+        Row: {
+          criado_em: string | null
+          id: string
+          respostas: Json
+        }
+        Insert: {
+          criado_em?: string | null
+          id?: string
+          respostas: Json
+        }
+        Update: {
+          criado_em?: string | null
+          id?: string
+          respostas?: Json
+        }
+        Relationships: []
+      }
       perguntas: {
         Row: {
           ativo: boolean | null

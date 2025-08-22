@@ -11,6 +11,9 @@ import { LogoUpload } from "@/components/LogoUpload";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Edit, Trash2, Users, TrendingUp, Settings, LogOut, Home, Phone, Eye, EyeOff, Palette } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { AdminPasswordModal } from "@/components/AdminPasswordModal";
+import { AdminSetPasswordModal } from "@/components/AdminSetPasswordModal";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Question {
   id: number;
@@ -38,10 +41,9 @@ interface Response {
 export default function Admin() {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [showLoginPassword, setShowLoginPassword] = useState(false);
-  const [showForgotPasswordLogin, setShowForgotPasswordLogin] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showSetPasswordModal, setShowSetPasswordModal] = useState(false);
+  const [isFirstAccess, setIsFirstAccess] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [responses, setResponses] = useState<Response[]>([]);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
@@ -53,13 +55,6 @@ export default function Admin() {
   });
   const [logo, setLogo] = useState<string>("");
   const [whatsappNumber, setWhatsappNumber] = useState<string>("");
-  const [newPassword, setNewPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
-  const [showForgotPassword, setShowForgotPassword] = useState<boolean>(false);
-  const [forgotPasswordInput, setForgotPasswordInput] = useState<string>("");
-  const [forgotPasswordConfirm, setForgotPasswordConfirm] = useState<string>("");
   
   // Color customization states
   const [customBg, setCustomBg] = useState<string>("#ffffff");
@@ -75,13 +70,30 @@ export default function Admin() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check authentication
-    const authStatus = localStorage.getItem("aprovaclt_admin_auth");
-    if (authStatus === "true") {
-      setIsAuthenticated(true);
-      loadData();
-    }
+    checkAdminAccess();
   }, []);
+
+  const checkAdminAccess = async () => {
+    try {
+      const { data } = await supabase
+        .from('admin_settings')
+        .select('username')
+        .eq('username', 'admin')
+        .maybeSingle();
+
+      if (!data) {
+        // First access - no password set yet
+        setIsFirstAccess(true);
+        setShowSetPasswordModal(true);
+      } else {
+        // Password exists - show login modal
+        setShowLoginModal(true);
+      }
+    } catch (error) {
+      console.error('Error checking admin access:', error);
+      setShowLoginModal(true);
+    }
+  };
 
   const loadData = () => {
     // Load questions
@@ -153,32 +165,39 @@ export default function Admin() {
     if (savedCustomApprovalChances) setCustomApprovalChances(savedCustomApprovalChances);
   };
 
-  const handleLogin = () => {
-    // Get current password from localStorage or use default
-    const currentPassword = localStorage.getItem("aprovaclt_admin_password") || "admin123";
-    
-    if (username === "admin" && password === currentPassword) {
-      localStorage.setItem("aprovaclt_admin_auth", "true");
-      setIsAuthenticated(true);
-      loadData();
-      toast({
-        title: "Login realizado!",
-        description: "Bem-vindo ao painel administrativo.",
-      });
+  const handleLoginSuccess = () => {
+    setShowLoginModal(false);
+    setIsAuthenticated(true);
+    loadData();
+    toast({
+      title: "Login realizado!",
+      description: "Bem-vindo ao painel administrativo.",
+    });
+  };
+
+  const handleSetPasswordSuccess = () => {
+    setShowSetPasswordModal(false);
+    if (isFirstAccess) {
+      // After first password setup, show login modal
+      setIsFirstAccess(false);
+      setShowLoginModal(true);
     } else {
       toast({
-        title: "Erro de autenticação",
-        description: "Usuário ou senha incorretos.",
-        variant: "destructive"
+        title: "Senha atualizada!",
+        description: "Senha alterada com sucesso.",
       });
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("aprovaclt_admin_auth");
     setIsAuthenticated(false);
-    setUsername("");
-    setPassword("");
+    checkAdminAccess();
+  };
+
+  const handleBackToHome = () => {
+    setShowLoginModal(false);
+    setShowSetPasswordModal(false);
+    navigate("/");
   };
 
   const saveQuestion = () => {
@@ -233,74 +252,29 @@ export default function Admin() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-primary">
-              Painel Administrativo
-            </CardTitle>
-            <p className="text-muted-foreground">AprovaCLT</p>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor="username">Usuário</Label>
-              <Input
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Digite seu usuário"
-              />
-            </div>
-            <div>
-              <Label htmlFor="password">Senha</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showLoginPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Digite sua senha"
-                  onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-                  className="pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3"
-                  onClick={() => setShowLoginPassword(!showLoginPassword)}
-                >
-                  {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </Button>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex gap-2">
-                <Link to="/" className="flex-1">
-                  <Button variant="outline" className="w-full">
-                    <Home className="w-4 h-4 mr-2" />
-                    Voltar
-                  </Button>
-                </Link>
-                <Button onClick={handleLogin} className="flex-1">
-                  Entrar
-                </Button>
-              </div>
-              
-              <Button 
-                variant="link" 
-                className="w-full text-sm"
-                onClick={() => setShowForgotPasswordLogin(true)}
-              >
-                Esqueci minha senha
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground text-center">
-              Usuário: admin | Senha: {localStorage.getItem("aprovaclt_admin_password") || "admin123"}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+      <>
+        <AdminPasswordModal
+          isOpen={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+          onSuccess={handleLoginSuccess}
+          onOpenSetPassword={() => {
+            setShowLoginModal(false);
+            setShowSetPasswordModal(true);
+          }}
+          onBackToHome={handleBackToHome}
+        />
+        
+        <AdminSetPasswordModal
+          isOpen={showSetPasswordModal}
+          onClose={() => setShowSetPasswordModal(false)}
+          onSuccess={handleSetPasswordSuccess}
+          onOpenLogin={() => {
+            setShowSetPasswordModal(false);
+            setShowLoginModal(true);
+          }}
+          isFirstAccess={isFirstAccess}
+        />
+      </>
     );
   }
 
@@ -450,95 +424,15 @@ export default function Admin() {
                 </div>
 
                 <div>
-                  <Label htmlFor="newPassword">Nova Senha do Admin</Label>
-                  <div className="space-y-3 mt-2">
-                    <div className="relative">
-                      <Input
-                        id="newPassword"
-                        type={showPassword ? "text" : "password"}
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Digite a nova senha"
-                        className="pr-10"
-                      />
-                       <Button
-                         type="button"
-                         variant="ghost"
-                         size="sm"
-                         className="absolute right-0 top-0 h-full px-3"
-                         onClick={() => setShowPassword(!showPassword)}
-                       >
-                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                       </Button>
-                    </div>
-                    
-                    <div className="relative">
-                      <Input
-                        type={showConfirmPassword ? "text" : "password"}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Confirme a nova senha"
-                        className="pr-10"
-                      />
-                       <Button
-                         type="button"
-                         variant="ghost"
-                         size="sm"
-                         className="absolute right-0 top-0 h-full px-3"
-                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                       >
-                         {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                       </Button>
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => {
-                          if (!newPassword.trim() || !confirmPassword.trim()) {
-                            toast({
-                              title: "Erro",
-                              description: "Preencha ambos os campos de senha.",
-                              variant: "destructive"
-                            });
-                            return;
-                          }
-                          
-                          if (newPassword !== confirmPassword) {
-                            toast({
-                              title: "Erro",
-                              description: "As senhas não coincidem.",
-                              variant: "destructive"
-                            });
-                            return;
-                          }
-                          
-                          localStorage.setItem("aprovaclt_admin_password", newPassword);
-                          setNewPassword("");
-                          setConfirmPassword("");
-                          toast({
-                            title: "Senha atualizada!",
-                            description: "Nova senha salva com sucesso.",
-                          });
-                        }}
-                        size="sm"
-                        disabled={!newPassword.trim() || !confirmPassword.trim()}
-                      >
-                        Alterar Senha
-                      </Button>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowForgotPassword(true)}
-                      >
-                        Esqueci Minha Senha
-                      </Button>
-                    </div>
-                    
-                    <p className="text-xs text-muted-foreground">
-                      A senha atual será alterada imediatamente após confirmação
-                    </p>
-                  </div>
+                  <Button
+                    onClick={() => {
+                      setShowSetPasswordModal(true);
+                    }}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    Alterar Senha do Admin
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -689,199 +583,27 @@ export default function Admin() {
         )}
       </div>
 
-      {/* Forgot Password Login Modal */}
-      {showForgotPasswordLogin && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md mx-4">
-            <CardHeader>
-              <CardTitle>Redefinir Senha de Acesso</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="relative">
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  value={forgotPasswordInput}
-                  onChange={(e) => setForgotPasswordInput(e.target.value)}
-                  placeholder="Nova senha"
-                  className="pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </Button>
-              </div>
-              
-              <div className="relative">
-                <Input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={forgotPasswordConfirm}
-                  onChange={(e) => setForgotPasswordConfirm(e.target.value)}
-                  placeholder="Confirmar nova senha"
-                  className="pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </Button>
-              </div>
-              
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => {
-                    if (!forgotPasswordInput.trim() || !forgotPasswordConfirm.trim()) {
-                      toast({
-                        title: "Erro",
-                        description: "Preencha ambos os campos.",
-                        variant: "destructive"
-                      });
-                      return;
-                    }
-                    
-                    if (forgotPasswordInput !== forgotPasswordConfirm) {
-                      toast({
-                        title: "Erro",
-                        description: "As senhas não coincidem.",
-                        variant: "destructive"
-                      });
-                      return;
-                    }
-                    
-                    localStorage.setItem("aprovaclt_admin_password", forgotPasswordInput);
-                    setForgotPasswordInput("");
-                    setForgotPasswordConfirm("");
-                    setShowForgotPasswordLogin(false);
-                    toast({
-                      title: "Senha redefinida!",
-                      description: "Nova senha salva com sucesso. Faça login novamente.",
-                    });
-                  }}
-                  className="flex-1"
-                >
-                  Salvar Nova Senha
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowForgotPasswordLogin(false);
-                    setForgotPasswordInput("");
-                    setForgotPasswordConfirm("");
-                  }}
-                  className="flex-1"
-                >
-                  Cancelar
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Forgot Password Modal (existing - from within admin panel) */}
-      {showForgotPassword && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md mx-4">
-            <CardHeader>
-              <CardTitle>Redefinir Senha</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="relative">
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  value={forgotPasswordInput}
-                  onChange={(e) => setForgotPasswordInput(e.target.value)}
-                  placeholder="Nova senha"
-                  className="pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </Button>
-              </div>
-              
-              <div className="relative">
-                <Input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={forgotPasswordConfirm}
-                  onChange={(e) => setForgotPasswordConfirm(e.target.value)}
-                  placeholder="Confirmar nova senha"
-                  className="pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </Button>
-              </div>
-              
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => {
-                    if (!forgotPasswordInput.trim() || !forgotPasswordConfirm.trim()) {
-                      toast({
-                        title: "Erro",
-                        description: "Preencha ambos os campos.",
-                        variant: "destructive"
-                      });
-                      return;
-                    }
-                    
-                    if (forgotPasswordInput !== forgotPasswordConfirm) {
-                      toast({
-                        title: "Erro",
-                        description: "As senhas não coincidem.",
-                        variant: "destructive"
-                      });
-                      return;
-                    }
-                    
-                    localStorage.setItem("aprovaclt_admin_password", forgotPasswordInput);
-                    setForgotPasswordInput("");
-                    setForgotPasswordConfirm("");
-                    setShowForgotPassword(false);
-                    toast({
-                      title: "Senha redefinida!",
-                      description: "Nova senha salva com sucesso.",
-                    });
-                  }}
-                  className="flex-1"
-                >
-                  Salvar
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowForgotPassword(false);
-                    setForgotPasswordInput("");
-                    setForgotPasswordConfirm("");
-                  }}
-                  className="flex-1"
-                >
-                  Cancelar
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      <AdminPasswordModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSuccess={handleLoginSuccess}
+        onOpenSetPassword={() => {
+          setShowLoginModal(false);
+          setShowSetPasswordModal(true);
+        }}
+        onBackToHome={handleBackToHome}
+      />
+      
+      <AdminSetPasswordModal
+        isOpen={showSetPasswordModal}
+        onClose={() => setShowSetPasswordModal(false)}
+        onSuccess={handleSetPasswordSuccess}
+        onOpenLogin={() => {
+          setShowSetPasswordModal(false);
+          setShowLoginModal(true);
+        }}
+        isFirstAccess={isFirstAccess}
+      />
     </div>
   );
 }
