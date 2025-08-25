@@ -726,6 +726,7 @@ export default function Admin() {
         )}
       </div>
 
+      {/* Modals */}
       <AdminPasswordModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
@@ -747,6 +748,36 @@ export default function Admin() {
         }}
         isFirstAccess={isFirstAccess}
       />
+
+      <ResponseDetailsModal
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        response={selectedResponse}
+        questions={questions}
+      />
+
+      <FullTableView
+        isOpen={showFullTable}
+        onClose={() => setShowFullTable(false)}
+        questions={questions}
+      />
+
+      <AlertDialog open={!!deleteResponseId} onOpenChange={() => setDeleteResponseId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir esta resposta? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteResponse}>
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
