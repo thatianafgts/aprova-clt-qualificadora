@@ -50,7 +50,7 @@ export function AdminPasswordModal({ isOpen, onClose, onSuccess, onOpenSetPasswo
     try {
       const { data, error } = await supabase
         .from('admin_settings')
-        .select('password_hash')
+        .select('password_hash, updated_at')
         .eq('username', 'admin')
         .single();
 
@@ -67,6 +67,23 @@ export function AdminPasswordModal({ isOpen, onClose, onSuccess, onOpenSetPasswo
       const isValid = await bcrypt.compare(password, data.password_hash);
       
       if (isValid) {
+        // Check if password needs to be updated (30 days)
+        const lastUpdate = new Date(data.updated_at);
+        const now = new Date();
+        const diffDays = Math.floor((now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (diffDays > 30) {
+          setPassword("");
+          toast({
+            title: "Senha expirada",
+            description: "Sua senha expirou. Por favor, defina uma nova senha.",
+            variant: "destructive",
+          });
+          onOpenSetPassword();
+          setIsLoading(false);
+          return;
+        }
+        
         setFailedAttempts(0);
         setPassword("");
         onSuccess();
@@ -107,11 +124,7 @@ export function AdminPasswordModal({ isOpen, onClose, onSuccess, onOpenSetPasswo
   };
 
   const handleForgotPassword = () => {
-    toast({
-      title: "Recurso indisponível",
-      description: "Recurso indisponível. Utilize Cadastrar/Alterar Senha para definir uma nova senha.",
-      variant: "destructive",
-    });
+    onOpenSetPassword();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

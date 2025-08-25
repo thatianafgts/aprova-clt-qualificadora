@@ -147,13 +147,17 @@ export function AdminSetPasswordModal({ isOpen, onClose, onSuccess, onOpenLogin,
       <DialogContent className="w-full max-w-md mx-auto p-6" onKeyDown={handleKeyDown}>
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-semibold">
-            Cadastrar/Alterar Senha do Administrador
+            {isFirstAccess ? "Cadastrar Senha" : "Cadastrar/Alterar Senha do Administrador"}
           </DialogTitle>
         </DialogHeader>
         
-        {isFirstAccess && (
+        {isFirstAccess ? (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
             Primeiro acesso: cadastre a senha. O login será 'admin'.
+          </div>
+        ) : (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+            O login é fixo: admin
           </div>
         )}
         

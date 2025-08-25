@@ -9,11 +9,24 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { LogoUpload } from "@/components/LogoUpload";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Users, TrendingUp, Settings, LogOut, Home, Phone, Eye, EyeOff, Palette } from "lucide-react";
+import { Plus, Edit, Trash2, Users, TrendingUp, Settings, LogOut, Home, Phone, Eye, EyeOff, Palette, Download, FileText, Table as TableIcon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { AdminPasswordModal } from "@/components/AdminPasswordModal";
 import { AdminSetPasswordModal } from "@/components/AdminSetPasswordModal";
+import { ResponseDetailsModal } from "@/components/ResponseDetailsModal";
+import { ResponseFilters } from "@/components/ResponseFilters";
+import { FullTableView } from "@/components/FullTableView";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Question {
   id: number;
@@ -45,7 +58,8 @@ export default function Admin() {
   const [showSetPasswordModal, setShowSetPasswordModal] = useState(false);
   const [isFirstAccess, setIsFirstAccess] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [responses, setResponses] = useState<Response[]>([]);
+  const [responses, setResponses] = useState<any[]>([]);
+  const [filteredResponses, setFilteredResponses] = useState<any[]>([]);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [newQuestion, setNewQuestion] = useState<Partial<Question>>({
     texto: "",
@@ -55,6 +69,12 @@ export default function Admin() {
   });
   const [logo, setLogo] = useState<string>("");
   const [whatsappNumber, setWhatsappNumber] = useState<string>("");
+  
+  // New states for response management
+  const [selectedResponse, setSelectedResponse] = useState<any>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showFullTable, setShowFullTable] = useState(false);
+  const [deleteResponseId, setDeleteResponseId] = useState<string | null>(null);
   
   // Color customization states
   const [customBg, setCustomBg] = useState<string>("#ffffff");
@@ -95,7 +115,7 @@ export default function Admin() {
     }
   };
 
-  const loadData = () => {
+  const loadData = async () => {
     // Load questions
     const savedQuestions = localStorage.getItem("aprovaclt_questions");
     if (savedQuestions) {
@@ -118,10 +138,19 @@ export default function Admin() {
       localStorage.setItem("aprovaclt_questions", JSON.stringify(defaultQuestions));
     }
 
-    // Load responses
-    const savedResponses = localStorage.getItem("aprovaclt_responses");
-    if (savedResponses) {
-      setResponses(JSON.parse(savedResponses));
+    // Load responses from Supabase
+    try {
+      const { data, error } = await supabase
+        .from('lovable_respostas')
+        .select('*')
+        .order('criado_em', { ascending: false });
+      
+      if (!error && data) {
+        setResponses(data);
+        setFilteredResponses(data);
+      }
+    } catch (error) {
+      console.error('Error loading responses:', error);
     }
 
     // Load logo
@@ -248,6 +277,84 @@ export default function Admin() {
   const editQuestion = (question: Question) => {
     setEditingQuestion(question);
     setNewQuestion(question);
+  };
+
+  const handleDeleteResponse = async () => {
+    if (!deleteResponseId) return;
+    
+    try {
+      const { error } = await supabase
+        .from('lovable_respostas')
+        .delete()
+        .eq('id', deleteResponseId);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Resposta excluída",
+        description: "Resposta excluída com sucesso.",
+      });
+      
+      loadData();
+      setDeleteResponseId(null);
+    } catch (error) {
+      console.error('Error deleting response:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir resposta.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const downloadResponse = (response: any) => {
+    const content = JSON.stringify(response, null, 2);
+    const blob = new Blob([content], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `resposta_${response.id}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Download realizado",
+      description: "Arquivo gerado com sucesso e salvo no seu computador.",
+    });
+  };
+
+  const handleFilter = (filters: any) => {
+    let filtered = [...responses];
+
+    if (filters.nome) {
+      filtered = filtered.filter(r => 
+        r.respostas?.nome?.toLowerCase().includes(filters.nome.toLowerCase())
+      );
+    }
+
+    if (filters.cpf) {
+      filtered = filtered.filter(r => 
+        r.respostas?.cpf?.includes(filters.cpf)
+      );
+    }
+
+    if (filters.dataInicial) {
+      filtered = filtered.filter(r => 
+        new Date(r.criado_em) >= filters.dataInicial
+      );
+    }
+
+    if (filters.dataFinal) {
+      filtered = filtered.filter(r => 
+        new Date(r.criado_em) <= filters.dataFinal
+      );
+    }
+
+    setFilteredResponses(filtered);
+  };
+
+  const handleClearFilters = () => {
+    setFilteredResponses(responses);
   };
 
   if (!isAuthenticated) {
@@ -547,31 +654,67 @@ export default function Admin() {
         {responses.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Últimas Respostas</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle>Últimas Respostas</CardTitle>
+                <Button onClick={() => setShowFullTable(true)} variant="outline">
+                  <TableIcon className="w-4 h-4 mr-2" />
+                  Ver Tabela Completa
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {responses.slice(-10).reverse().map((response) => (
+              <ResponseFilters onFilter={handleFilter} onClear={handleClearFilters} />
+              <div className="space-y-4 mt-4">
+                {filteredResponses.slice(-10).reverse().map((response) => (
                   <div key={response.id} className="p-4 border rounded-lg">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <p className="font-medium">{response.nome}</p>
-                        <p className="text-sm text-muted-foreground">{response.telefone}</p>
-                        {response.email && (
-                          <p className="text-sm text-muted-foreground">{response.email}</p>
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <p className="font-medium">{response.respostas?.nome}</p>
+                        <p className="text-sm text-muted-foreground">{response.respostas?.telefone}</p>
+                        {response.respostas?.email && (
+                          <p className="text-sm text-muted-foreground">{response.respostas?.email}</p>
                         )}
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(response.timestamp).toLocaleDateString('pt-BR')}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(response.criado_em).toLocaleString('pt-BR')}
                         </p>
-                        <div className="flex gap-2 mt-1">
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex gap-2">
                           <Badge variant="outline" className="text-success border-success">
-                            {response.sim} Sim
+                            {response.respostas?.sim || 0} Sim
                           </Badge>
                           <Badge variant="outline" className="text-destructive border-destructive">
-                            {response.nao} Não
+                            {response.respostas?.nao || 0} Não
                           </Badge>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setSelectedResponse(response);
+                              setShowDetailsModal(true);
+                            }}
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            Ver Detalhes
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setDeleteResponseId(response.id)}
+                          >
+                            <Trash2 className="w-4 h-4 mr-1" />
+                            Excluir
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => downloadResponse(response)}
+                          >
+                            <Download className="w-4 h-4 mr-1" />
+                            Download
+                          </Button>
                         </div>
                       </div>
                     </div>
